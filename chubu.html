@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>中部地方クイズ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1976d2">
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+
+  <style>
+    body {
+      margin: 0; padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #e3f2fd;
+      height: 100vh;
+      display: flex; justify-content: center; align-items: center;
+    }
+    #app {
+      background: #fff;
+      width: 100%; max-width: 900px;
+      height: 100%; max-height: 680px;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      padding: 16px; box-sizing: border-box;
+      display: flex; flex-direction: column;
+    }
+    @media (max-width: 768px) {
+      #app { border-radius: 0; max-height: none; box-shadow: none; }
+    }
+    h1 { text-align: center; margin: 0 0 8px; }
+    #qnum { font-size: 0.9rem; color: #666; margin-bottom: 4px; }
+    #question { font-weight: bold; margin-bottom: 12px; }
+    ul { list-style: none; padding: 0; margin: 0; overflow-y: auto; flex: 1; }
+    li { margin-bottom: 10px; }
+    button.choice {
+      width: 100%; padding: 12px; border: 1px solid #ccc;
+      border-radius: 10px; background: #fafafa;
+      text-align: left; font-size: 1rem;
+    }
+    button.correct { background: #e0ffe7; border-color: #00aa55; }
+    button.wrong { background: #ffe3e3; border-color: #ff4444; }
+    #feedback { min-height: 1.2em; margin: 8px 0; font-weight: bold; }
+    #next, #restart {
+      padding: 10px 16px; border-radius: 999px; border: none; margin-left: 4px;
+    }
+    #next { background: #1976d2; color: #fff; }
+    #next:disabled { background: #9e9e9e; }
+    #restart { background: #ddd; }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <h1>中部地方クイズ</h1>
+    <div id="qnum"></div>
+    <div id="question"></div>
+    <ul id="choices"></ul>
+    <div id="feedback"></div>
+
+    <div>
+      <span id="score"></span>
+      <button id="next" disabled>次へ</button>
+      <button id="restart" style="display:none;">最初から</button>
+    </div>
+  </div>
+
+<script>
+const quiz = [
+  {q:"(1) 日本の屋根とよばれる中央高地の3つの大きな山脈の総称は？",
+   a:"日本アルプス",
+   c:["日本アルプス","奥羽山脈","紀伊山地","日高山脈"]},
+
+  {q:"(2) 木曽・赤石山脈とあと1つは？",
+   a:"飛騨山脈",
+   c:["飛騨山脈","天城山脈","比良山地","六甲山地"]},
+
+  {q:"(6) 大井川の西に広がる茶の台地は？",
+   a:"牧之原台地",
+   c:["牧之原台地","三方原台地","庄内台地","武蔵野台地"]},
+
+  {q:"(7) 精密機械→多目的ダム→みかん台地の川は？",
+   a:"天竜川",
+   c:["天竜川","木曽川","大井川","富士川"]},
+
+  {q:"(8) 北陸に雪をもたらす大陸からの風は？",
+   a:"北西季節風",
+   c:["北西季節風","南東季節風","偏西風","貿易風"]},
+
+  {q:"(9) 盆地の山ろくにある傾斜地形の名前は？",
+   a:"扇状地",
+   c:["扇状地","三角州","リアス海岸","砂丘"]},
+
+  {q:"(10) 村全体を堤防で囲む集落を何という？",
+   a:"輪中",
+   c:["輪中","干拓地","中州","砂丘集落"]},
+
+  {q:"(11) 中京工業地帯で中心となる工業は？",
+   a:"自動車工業",
+   c:["自動車工業","鉄鋼業","造船業","食品工業"]},
+
+  {q:"(12) 製糸に代わって岡谷や諏訪で発達した工業は？",
+   a:"精密機械工業",
+   c:["精密機械工業","鉄鋼業","木工業","化学工業"]},
+
+  {q:"(13) 諏訪・松本盆地に進出が目立つ工業は？",
+   a:"電子工業",
+   c:["電子工業","紙工業","セメント工業","食品工業"]},
+
+  {q:"(14) 輪島塗・越前和紙などの工業を何という？",
+   a:"伝統工業",
+   c:["伝統工業","重化学工業","先端技術産業","金属工業"]},
+
+  {q:"(15) 伊勢湾岸で石油化学コンビナートがある都市は？",
+   a:"四日市市",
+   c:["四日市市","名古屋市","豊田市","岡崎市"]},
+
+  {q:"(16) 涼しい高原でレタスなどを遅らせて出荷する農業は？",
+   a:"抑制栽培",
+   c:["抑制栽培","促成栽培","近郊農業","輪作"]},
+
+  {q:"(17) 温室栽培がさかんな半島は？",
+   a:"渥美半島",
+   c:["渥美半島","知多半島","房総半島","紀伊半島"]},
+
+  {q:"(18) 日照調整して冬に出荷するきくの名前は？",
+   a:"電照菊",
+   c:["電照菊","抑制菊","冬菊","促成菊"]},
+
+  {q:"(19) 木曽川から引き、知多・名古屋で使う用水は？",
+   a:"愛知用水",
+   c:["愛知用水","豊川用水","琵琶湖疏水","吉野川用水"]},
+
+  {q:"(20) 自動車・製鉄・石油化学が発達する大都市は？",
+   a:"名古屋市",
+   c:["名古屋市","大阪市","浜松市","静岡市"]},
+
+  {q:"(21) 挙母→企業名に合わせて改名した都市は？",
+   a:"豊田市",
+   c:["豊田市","豊川市","豊橋市","豊中市"]},
+
+  {q:"(22) 加賀百万石の城下町で伝統工業が盛んな県庁所在地は？",
+   a:"金沢市",
+   c:["金沢市","富山市","福井市","新潟市"]},
+
+  {q:"(23) 製紙・楽器・オートバイで有名な工業都市は？",
+   a:"浜松市",
+   c:["浜松市","豊橋市","岐阜市","甲府市"]},
+
+  {q:"(24) 果樹が盛んで県名と県庁所在地が違う県は？",
+   a:"山梨県",
+   c:["山梨県","長野県","岐阜県","富山県"]},
+
+  {q:"(25) 米産１位、信濃川下流で稲作が盛んな県は？",
+   a:"新潟県",
+   c:["新潟県","秋田県","山形県","富山県"]},
+
+  {q:"(26) 九谷焼・輪島塗・加賀友禅の県は？",
+   a:"石川県",
+   c:["石川県","福井県","富山県","新潟県"]},
+
+  {q:"(27) 瀬戸・多治見で作られる新しい陶器製品は？",
+   a:"ファインセラミックス",
+   c:["ファインセラミックス","ホーロー製品","セラミック瓦","カーボンファイバー"]},
+];
+
+let order = [...Array(quiz.length).keys()].sort(()=>Math.random()-0.5);
+let pos=0, score=0, answered=false;
+
+function showQ(){
+  answered=false;
+  const q = quiz[order[pos]];
+
+  document.getElementById("qnum").innerText =
+    `第 ${pos+1} 問 / 全 ${quiz.length} 問`;
+
+  document.getElementById("question").innerText = q.q;
+
+  const list = document.getElementById("choices");
+  list.innerHTML="";
+
+  let shuffled = q.c.slice().sort(()=>Math.random()-0.5);
+
+  shuffled.forEach(ch=>{
+    let li = document.createElement("li");
+    let btn = document.createElement("button");
+    btn.className="choice";
+    btn.innerText = ch;
+
+    btn.onclick=()=>{
+      if(answered) return;
+      answered=true;
+
+      [...document.querySelectorAll("button.choice")].forEach(b=>{
+        b.disabled=true;
+        if(b.innerText===q.a) b.classList.add("correct");
+        if(b.innerText===ch && ch!==q.a) b.classList.add("wrong");
+      });
+
+      if(ch===q.a){
+        score++;
+        document.getElementById("feedback").innerText="正解！";
+      } else {
+        document.getElementById("feedback").innerText=`不正解… 正解は ${q.a}`;
+      }
+      document.getElementById("next").disabled=false;
+      document.getElementById("score").innerText=`スコア: ${score}`;
+    };
+
+    li.appendChild(btn);
+    list.appendChild(li);
+  });
+
+  document.getElementById("next").disabled=true;
+  document.getElementById("feedback").innerText="";
+  document.getElementById("score").innerText=`スコア: ${score}`;
+}
+
+document.getElementById("next").onclick=()=>{
+  pos++;
+  if(pos<quiz.length){
+    showQ();
+  } else {
+    document.getElementById("feedback").innerText =
+      `おつかれ！正解率 ${(score/quiz.length*100).toFixed(0)}%`;
+    document.getElementById("restart").style.display="inline-block";
+    document.getElementById("next").disabled=true;
+  }
+};
+
+document.getElementById("restart").onclick=()=>{
+  pos=0; score=0;
+  order = [...Array(quiz.length).keys()].sort(()=>Math.random()-0.5);
+  document.getElementById("restart").style.display="none";
+  showQ();
+};
+
+showQ();
+
+// PWA
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("service-worker.js");
+}
+</script>
+
+</body>
+</html>
