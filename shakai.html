@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>オリジナルテキスト 1問1答 社会 四択クイズ</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+      background: #f5f5f5;
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.6rem;
+      margin-bottom: 10px;
+    }
+    #quiz-container {
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    #question-number {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 8px;
+    }
+    #question {
+      font-weight: bold;
+      margin-bottom: 16px;
+    }
+    .choice-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 16px 0;
+    }
+    .choice-list li {
+      margin-bottom: 8px;
+    }
+    .choice-btn {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      background: #fafafa;
+      cursor: pointer;
+      text-align: left;
+      font-size: 1rem;
+      transition: transform 0.05s ease, box-shadow 0.05s ease, background 0.1s ease;
+    }
+    .choice-btn:hover {
+      box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+      transform: translateY(-1px);
+    }
+    .choice-btn.correct {
+      background: #e0ffe7;
+      border-color: #36b37e;
+    }
+    .choice-btn.wrong {
+      background: #ffe3e3;
+      border-color: #ff4b4b;
+    }
+    .choice-btn:disabled {
+      cursor: default;
+      opacity: 0.8;
+    }
+    #feedback {
+      min-height: 1.5em;
+      margin-bottom: 12px;
+      font-weight: bold;
+    }
+    #controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    #next-btn, #restart-btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+    #next-btn {
+      background: #1976d2;
+      color: #fff;
+    }
+    #next-btn:disabled {
+      background: #9e9e9e;
+      cursor: default;
+    }
+    #restart-btn {
+      background: #eee;
+    }
+    #score {
+      font-size: 0.9rem;
+      color: #333;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 1rem;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>オリジナルテキスト 1問1答 社会 四択クイズ</h1>
+  <div id="quiz-container">
+    <div id="question-number"></div>
+    <div id="question"></div>
+    <ul class="choice-list" id="choice-list"></ul>
+
+    <div id="feedback"></div>
+
+    <div id="controls">
+      <div id="score"></div>
+      <button id="next-btn" disabled>次の問題へ</button>
+      <button id="restart-btn" style="display:none;">最初から</button>
+    </div>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    // ここが今回の19問分データ
+    const quizData = [
+      {
+        question: "① 日本の太平洋側を流れる海流（暖流）を何というか。",
+        choices: [
+          "黒潮（日本海流）",
+          "対馬海流",
+          "親潮（千島海流）",
+          "リマン海流"
+        ],
+        answer: 0
+      },
+      {
+        question: "② 日本の日本海側を流れる海流（暖流）を何というか。",
+        choices: [
+          "黒潮（日本海流）",
+          "親潮（千島海流）",
+          "対馬海流",
+          "リマン海流"
+        ],
+        answer: 2
+      },
+      {
+        question: "③ 日本の太平洋側を流れる海流（寒流）を何というか。",
+        choices: [
+          "リマン海流",
+          "黒潮（日本海流）",
+          "対馬海流",
+          "親潮（千島海流）"
+        ],
+        answer: 3
+      },
+      {
+        question: "④ 日本の日本海側を流れる海流（寒流）を何というか。",
+        choices: [
+          "親潮（千島海流）",
+          "リマン海流",
+          "黒潮（日本海流）",
+          "対馬海流"
+        ],
+        answer: 1
+      },
+      {
+        question: "⑤ 季節によって風向が変わる風を何というか。",
+        choices: [
+          "貿易風",
+          "偏西風",
+          "季節風（モンスーン）",
+          "下降気流"
+        ],
+        answer: 2
+      },
+      {
+        question: "⑥ 日本で南東の季節風が強くふく季節はいつか。",
+        choices: [
+          "春",
+          "夏",
+          "秋",
+          "冬"
+        ],
+        answer: 1
+      },
+      {
+        question: "⑦ 日本で北西の季節風が強くふく季節はいつか。",
+        choices: [
+          "春",
+          "夏",
+          "秋",
+          "冬"
+        ],
+        answer: 3
+      },
+      {
+        question: "⑧ 日本の太平洋側では夏と冬のどちらの方が降水量が多いか。",
+        choices: [
+          "夏",
+          "冬",
+          "ほぼ同じ",
+          "年によって大きく変わる"
+        ],
+        answer: 0
+      },
+      {
+        question: "⑨ 日本の日本海側では夏と冬のどちらの方が降水量が多いか。",
+        choices: [
+          "夏",
+          "冬",
+          "ほぼ同じ",
+          "年によって大きく変わる"
+        ],
+        answer: 1
+      },
+      {
+        question: "⑩ 日本で6月中ごろから約1ヶ月続く長雨の時期を何というか。",
+        choices: [
+          "出水期",
+          "梅雨",
+          "秋雨前線",
+          "フェーン"
+        ],
+        answer: 1
+      },
+      {
+        question: "⑪ 夏や秋に日本に来て風水害をもたらす自然現象を何というか。",
+        choices: [
+          "台風",
+          "竜巻",
+          "火山噴火",
+          "高潮"
+        ],
+        answer: 0
+      },
+      {
+        question: "⑫ 地殻内部で急に起こる岩盤内部に強い波が断層に沿って発生するが、この波を何というか。",
+        choices: [
+          "津波",
+          "地震波",
+          "うねり",
+          "余震"
+        ],
+        answer: 1
+      },
+      {
+        question: "⑬ 世界の気候帯で見ると北海道などはどの気候帯に属するか。",
+        choices: [
+          "熱帯",
+          "乾燥帯",
+          "温帯",
+          "冷帯（亜寒帯）"
+        ],
+        answer: 3
+      },
+      {
+        question: "⑭ 北海道のように冬の気温が特に低い気候を何というか。",
+        choices: [
+          "北海道の気候",
+          "日本海側の気候",
+          "中央高地の気候",
+          "太平洋側の気候"
+        ],
+        answer: 0
+      },
+      {
+        question: "⑮ 日本海側のように冬に降水量が多い気候を何というか。",
+        choices: [
+          "太平洋側の気候",
+          "瀬戸内の気候",
+          "日本海側の気候",
+          "南西諸島の気候"
+        ],
+        answer: 2
+      },
+      {
+        question: "⑯ 太平洋側のように冬に乾燥する気候を何というか。",
+        choices: [
+          "太平洋側の気候",
+          "日本海側の気候",
+          "瀬戸内の気候",
+          "南西諸島の気候"
+        ],
+        answer: 0
+      },
+      {
+        question: "⑰ 沖縄のように冬でも温暖な気候を何というか。",
+        choices: [
+          "中央高地の気候",
+          "南西諸島の気候",
+          "瀬戸内の気候",
+          "北海道の気候"
+        ],
+        answer: 1
+      },
+      {
+        question: "⑱ 瀬戸内海沿岸のように降水量が少なく、冬でも温和な気候を何というか。",
+        choices: [
+          "瀬戸内の気候",
+          "中央高地の気候",
+          "太平洋側の気候",
+          "日本海側の気候"
+        ],
+        answer: 0
+      },
+      {
+        question: "⑲ 長野などのように冬の気温が低く、降水量が少ない気候を何というか。",
+        choices: [
+          "瀬戸内の気候",
+          "中央高地の気候",
+          "北海道の気候",
+          "南西諸島の気候"
+        ],
+        answer: 1
+      }
+    ];
+
+    let currentIndex = 0;
+    let score = 0;
+    let answered = false;
+
+    const questionNumberEl = document.getElementById("question-number");
+    const questionEl = document.getElementById("question");
+    const choiceListEl = document.getElementById("choice-list");
+    const feedbackEl = document.getElementById("feedback");
+    const scoreEl = document.getElementById("score");
+    const nextBtn = document.getElementById("next-btn");
+    const restartBtn = document.getElementById("restart-btn");
+    const resultEl = document.getElementById("result");
+
+    function loadQuestion() {
+      answered = false;
+      nextBtn.disabled = true;
+      feedbackEl.textContent = "";
+      resultEl.textContent = "";
+
+      const q = quizData[currentIndex];
+      questionNumberEl.textContent = `第 ${currentIndex + 1} 問 / 全 ${quizData.length} 問`;
+      questionEl.textContent = q.question;
+
+      choiceListEl.innerHTML = "";
+      q.choices.forEach((choice, index) => {
+        const li = document.createElement("li");
+        const btn = document.createElement("button");
+        btn.className = "choice-btn";
+        btn.textContent = choice;
+        btn.addEventListener("click", () => handleChoice(index));
+        li.appendChild(btn);
+        choiceListEl.appendChild(li);
+      });
+
+      updateScore();
+    }
+
+    function handleChoice(selectedIndex) {
+      if (answered) return;
+      answered = true;
+
+      const q = quizData[currentIndex];
+      const buttons = document.querySelectorAll(".choice-btn");
+
+      buttons.forEach((btn, index) => {
+        btn.disabled = true;
+        if (index === q.answer) {
+          btn.classList.add("correct");
+        }
+        if (index === selectedIndex && index !== q.answer) {
+          btn.classList.add("wrong");
+        }
+      });
+
+      if (selectedIndex === q.answer) {
+        feedbackEl.textContent = "正解！いい感じ。";
+        score++;
+      } else {
+        feedbackEl.textContent = `不正解…。正解は「${q.choices[q.answer]}」です。`;
+      }
+
+      updateScore();
+      nextBtn.disabled = false;
+
+      if (currentIndex === quizData.length - 1) {
+        nextBtn.textContent = "結果を見る";
+      } else {
+        nextBtn.textContent = "次の問題へ";
+      }
+    }
+
+    function updateScore() {
+      scoreEl.textContent = `スコア: ${score} / ${quizData.length}`;
+    }
+
+    function showResult() {
+      const percentage = Math.round((score / quizData.length) * 100);
+      resultEl.textContent = `おつかれさま！ 正解率は ${percentage}% でした。`;
+      restartBtn.style.display = "inline-block";
+    }
+
+    nextBtn.addEventListener("click", () => {
+      if (currentIndex < quizData.length - 1) {
+        currentIndex++;
+        loadQuestion();
+      } else {
+        showResult();
+        nextBtn.disabled = true;
+      }
+    });
+
+    restartBtn.addEventListener("click", () => {
+      currentIndex = 0;
+      score = 0;
+      restartBtn.style.display = "none";
+      nextBtn.disabled = true;
+      loadQuestion();
+    });
+
+    // 初期表示
+    loadQuestion();
+  </script>
+</body>
+</html>
