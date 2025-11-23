@@ -1,134 +1,209 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>オリジナルテキスト 1問1答 社会 四択クイズ</title>
+  <meta charset="UTF-8" />
+  <title>BRAVE 社会クイズ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1976d2" />
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+
   <style>
-    body {
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #e3f2fd;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-      line-height: 1.6;
-      background: #f5f5f5;
     }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #app-root {
+      width: 100%;
+      max-width: 900px;
+      height: 100%;
+      max-height: 680px;
+      background: #f5f5f5;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+      border-radius: 16px;
+      padding: 16px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
+
+    @media (max-width: 768px) {
+      #app-root {
+        max-height: none;
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+
     h1 {
       text-align: center;
-      font-size: 1.6rem;
-      margin-bottom: 10px;
+      font-size: 1.4rem;
+      margin: 0 0 8px 0;
     }
+
     #quiz-container {
-      background: #fff;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 16px;
+      box-sizing: border-box;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
+
     #question-number {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: #666;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
     }
+
     #question {
       font-weight: bold;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
+      font-size: 1rem;
     }
+
     .choice-list {
       list-style: none;
       padding: 0;
-      margin: 0 0 16px 0;
+      margin: 0 0 12px 0;
+      flex: 1;
+      overflow-y: auto;
     }
+
     .choice-list li {
       margin-bottom: 8px;
     }
+
     .choice-btn {
       width: 100%;
       padding: 10px 14px;
-      border-radius: 6px;
+      border-radius: 8px;
       border: 1px solid #ccc;
       background: #fafafa;
       cursor: pointer;
       text-align: left;
-      font-size: 1rem;
-      transition: transform 0.05s ease, box-shadow 0.05s ease, background 0.1s ease;
+      font-size: 0.95rem;
+      transition: transform 0.05s ease, box-shadow 0.05s ease, background 0.1s ease, border-color 0.1s ease;
     }
-    .choice-btn:hover {
+
+    .choice-btn:hover:not(:disabled) {
       box-shadow: 0 1px 4px rgba(0,0,0,0.12);
       transform: translateY(-1px);
     }
+
     .choice-btn.correct {
       background: #e0ffe7;
       border-color: #36b37e;
     }
+
     .choice-btn.wrong {
       background: #ffe3e3;
       border-color: #ff4b4b;
     }
+
     .choice-btn:disabled {
       cursor: default;
-      opacity: 0.8;
+      opacity: 0.9;
     }
+
     #feedback {
-      min-height: 1.5em;
-      margin-bottom: 12px;
+      min-height: 1.4em;
+      margin-bottom: 8px;
       font-weight: bold;
+      font-size: 0.9rem;
     }
+
     #controls {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 8px;
       flex-wrap: wrap;
+      margin-top: 4px;
     }
+
     #next-btn, #restart-btn {
       padding: 8px 16px;
-      border-radius: 6px;
+      border-radius: 999px;
       border: none;
       cursor: pointer;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
+      font-weight: 600;
     }
+
     #next-btn {
       background: #1976d2;
       color: #fff;
     }
+
     #next-btn:disabled {
       background: #9e9e9e;
       cursor: default;
     }
+
     #restart-btn {
-      background: #eee;
-    }
-    #score {
-      font-size: 0.9rem;
+      background: #eeeeee;
       color: #333;
     }
+
+    #score {
+      font-size: 0.85rem;
+      color: #333;
+    }
+
     #result {
-      margin-top: 20px;
-      font-size: 1rem;
+      margin-top: 6px;
+      font-size: 0.95rem;
       font-weight: bold;
       text-align: center;
+    }
+
+    #app-title-sub {
+      text-align: center;
+      font-size: 0.75rem;
+      color: #777;
+      margin-bottom: 8px;
     }
   </style>
 </head>
 <body>
-  <h1>オリジナルテキスト 1問1答 社会 四択クイズ</h1>
-  <div id="quiz-container">
-    <div id="question-number"></div>
-    <div id="question"></div>
-    <ul class="choice-list" id="choice-list"></ul>
+  <div id="app-root">
+    <h1>BRAVE 社会クイズ</h1>
+    <div id="app-title-sub">一問一答（海流・季節風・気候）</div>
 
-    <div id="feedback"></div>
+    <div id="quiz-container">
+      <div id="question-number"></div>
+      <div id="question"></div>
+      <ul class="choice-list" id="choice-list"></ul>
 
-    <div id="controls">
-      <div id="score"></div>
-      <button id="next-btn" disabled>次の問題へ</button>
-      <button id="restart-btn" style="display:none;">最初から</button>
+      <div id="feedback"></div>
+
+      <div id="controls">
+        <div id="score"></div>
+        <button id="next-btn" disabled>次の問題へ</button>
+        <button id="restart-btn" style="display:none;">最初から</button>
+      </div>
+
+      <div id="result"></div>
     </div>
-
-    <div id="result"></div>
   </div>
 
   <script>
-    // ここが今回の19問分データ
+    // ==== ここからクイズの中身 ====
     const quizData = [
       {
         question: "① 日本の太平洋側を流れる海流（暖流）を何というか。",
@@ -182,142 +257,72 @@
       },
       {
         question: "⑥ 日本で南東の季節風が強くふく季節はいつか。",
-        choices: [
-          "春",
-          "夏",
-          "秋",
-          "冬"
-        ],
+        choices: [ "春", "夏", "秋", "冬" ],
         answer: 1
       },
       {
         question: "⑦ 日本で北西の季節風が強くふく季節はいつか。",
-        choices: [
-          "春",
-          "夏",
-          "秋",
-          "冬"
-        ],
+        choices: [ "春", "夏", "秋", "冬" ],
         answer: 3
       },
       {
         question: "⑧ 日本の太平洋側では夏と冬のどちらの方が降水量が多いか。",
-        choices: [
-          "夏",
-          "冬",
-          "ほぼ同じ",
-          "年によって大きく変わる"
-        ],
+        choices: [ "夏", "冬", "ほぼ同じ", "年によって大きく変わる" ],
         answer: 0
       },
       {
         question: "⑨ 日本の日本海側では夏と冬のどちらの方が降水量が多いか。",
-        choices: [
-          "夏",
-          "冬",
-          "ほぼ同じ",
-          "年によって大きく変わる"
-        ],
+        choices: [ "夏", "冬", "ほぼ同じ", "年によって大きく変わる" ],
         answer: 1
       },
       {
         question: "⑩ 日本で6月中ごろから約1ヶ月続く長雨の時期を何というか。",
-        choices: [
-          "出水期",
-          "梅雨",
-          "秋雨前線",
-          "フェーン"
-        ],
+        choices: [ "出水期", "梅雨", "秋雨前線", "フェーン" ],
         answer: 1
       },
       {
         question: "⑪ 夏や秋に日本に来て風水害をもたらす自然現象を何というか。",
-        choices: [
-          "台風",
-          "竜巻",
-          "火山噴火",
-          "高潮"
-        ],
+        choices: [ "台風", "竜巻", "火山噴火", "高潮" ],
         answer: 0
       },
       {
         question: "⑫ 地殻内部で急に起こる岩盤内部に強い波が断層に沿って発生するが、この波を何というか。",
-        choices: [
-          "津波",
-          "地震波",
-          "うねり",
-          "余震"
-        ],
+        choices: [ "津波", "地震波", "うねり", "余震" ],
         answer: 1
       },
       {
         question: "⑬ 世界の気候帯で見ると北海道などはどの気候帯に属するか。",
-        choices: [
-          "熱帯",
-          "乾燥帯",
-          "温帯",
-          "冷帯（亜寒帯）"
-        ],
+        choices: [ "熱帯", "乾燥帯", "温帯", "冷帯（亜寒帯）" ],
         answer: 3
       },
       {
         question: "⑭ 北海道のように冬の気温が特に低い気候を何というか。",
-        choices: [
-          "北海道の気候",
-          "日本海側の気候",
-          "中央高地の気候",
-          "太平洋側の気候"
-        ],
+        choices: [ "北海道の気候", "日本海側の気候", "中央高地の気候", "太平洋側の気候" ],
         answer: 0
       },
       {
         question: "⑮ 日本海側のように冬に降水量が多い気候を何というか。",
-        choices: [
-          "太平洋側の気候",
-          "瀬戸内の気候",
-          "日本海側の気候",
-          "南西諸島の気候"
-        ],
+        choices: [ "太平洋側の気候", "瀬戸内の気候", "日本海側の気候", "南西諸島の気候" ],
         answer: 2
       },
       {
         question: "⑯ 太平洋側のように冬に乾燥する気候を何というか。",
-        choices: [
-          "太平洋側の気候",
-          "日本海側の気候",
-          "瀬戸内の気候",
-          "南西諸島の気候"
-        ],
+        choices: [ "太平洋側の気候", "日本海側の気候", "瀬戸内の気候", "南西諸島の気候" ],
         answer: 0
       },
       {
         question: "⑰ 沖縄のように冬でも温暖な気候を何というか。",
-        choices: [
-          "中央高地の気候",
-          "南西諸島の気候",
-          "瀬戸内の気候",
-          "北海道の気候"
-        ],
+        choices: [ "中央高地の気候", "南西諸島の気候", "瀬戸内の気候", "北海道の気候" ],
         answer: 1
       },
       {
         question: "⑱ 瀬戸内海沿岸のように降水量が少なく、冬でも温和な気候を何というか。",
-        choices: [
-          "瀬戸内の気候",
-          "中央高地の気候",
-          "太平洋側の気候",
-          "日本海側の気候"
-        ],
+        choices: [ "瀬戸内の気候", "中央高地の気候", "太平洋側の気候", "日本海側の気候" ],
         answer: 0
       },
       {
         question: "⑲ 長野などのように冬の気温が低く、降水量が少ない気候を何というか。",
-        choices: [
-          "瀬戸内の気候",
-          "中央高地の気候",
-          "北海道の気候",
-          "南西諸島の気候"
-        ],
+        choices: [ "瀬戸内の気候", "中央高地の気候", "北海道の気候", "南西諸島の気候" ],
         answer: 1
       }
     ];
@@ -423,6 +428,16 @@
 
     // 初期表示
     loadQuestion();
+
+    // ==== PWA: サービスワーカー登録 ====
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js").catch(err => {
+          console.log("SW registration failed:", err);
+        });
+      });
+    }
   </script>
 </body>
 </html>
+
